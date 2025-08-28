@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100坪屋頂太陽能投資效益互動分析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Earthy Harmony -->
+    <!-- Application Structure Plan: The SPA is designed as an interactive investment calculator. It begins with a hero section summarizing the key potential, followed by the core interactive calculator where users can adjust variables like capacity and cost. The results are instantly visualized in a dynamic 20-year revenue chart. This is followed by a clear, visual timeline of the application process and a side-by-side comparison of the 'Self-Build' vs. 'Rooftop Rental' models. This structure guides the user from initial interest (potential) to detailed analysis (calculator), long-term vision (chart), practical considerations (process), and strategic choice (models), making a complex decision intuitive and data-driven. -->
+    <!-- Visualization & Content Choices: 1. Interactive Calculator (HTML/JS): Report data on capacity, cost, and revenue is transformed into interactive sliders. Goal: Allow user-driven scenario analysis. Interaction: Sliders update all financial outputs and the chart in real-time. Justification: Most engaging way to explore financial variables. 2. 20-Year Revenue Chart (Chart.js/Canvas): Report data on long-term returns. Goal: Visualize long-term profitability and the break-even point. Interaction: Dynamically updates with calculator changes. Justification: Line chart is ideal for showing trends over time. 3. Process Timeline (HTML/CSS): Report info on the 6-10 month application process. Goal: Simplify a complex procedure. Viz: A static, responsive visual timeline. Justification: Clearer and more accessible than plain text. 4. Model Comparison (HTML/CSS): Report's comparison of 'Self-Build' vs. 'Rental'. Goal: Aid strategic decision-making. Viz: Side-by-side cards. Justification: Intuitive for direct comparison. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #FDFBF6;
+            color: #424242;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+            transform: translateY(-4px);
+        }
+        .stat-value {
+            color: #7C9D96;
+            font-weight: 700;
+        }
+        .accent-bg { background-color: #7C9D96; }
+        .accent-text { color: #7C9D96; }
+        .secondary-accent-bg { background-color: #A1887F; }
+        .secondary-accent-text { color: #A1887F; }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #7C9D96;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: #7C9D96;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .nav-button {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <header class="sticky top-0 z-10 w-full shadow-md nav-button">
+        <div class="container mx-auto px-4 py-3">
+            <h1 class="text-2xl md:text-3xl font-bold text-center accent-text">屋頂太陽能投資效益互動分析</h1>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 md:py-12">
+        <section id="intro" class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">您的100坪屋頂，一座潛力無窮的綠色金礦</h2>
+            <p class="max-w-3xl mx-auto text-lg text-gray-600">
+                這份報告將靜態數據轉化為您的個人化投資儀表板。透過下方的互動工具，您可以模擬不同條件下的太陽能建置方案，探索其財務潛力，並了解從申請到獲利的完整路徑。
+            </p>
+        </section>
+
+        <section id="calculator" class="mb-16">
+            <div class="card p-6 md:p-8">
+                <h3 class="text-2xl font-bold mb-6 text-center">📈 投資效益即時模擬器</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <div class="mb-6">
+                            <label for="capacity" class="block font-bold mb-2">裝置容量 (kW): <span id="capacityValue" class="font-bold accent-text">60</span> kW</label>
+                            <input type="range" id="capacity" min="40" max="66.7" step="0.1" value="60" class="w-full">
+                            <p class="text-sm text-gray-500 mt-1">根據100坪屋頂面積，可安裝容量約在40至66.7瓩之間。</p>
+                        </div>
+                        <div class="mb-6">
+                            <label for="cost" class="block font-bold mb-2">每瓩建置成本 (NT$): <span id="costValue" class="font-bold accent-text">55,000</span> 元</label>
+                            <input type="range" id="cost" min="50000" max="60000" step="100" value="55000" class="w-full">
+                            <p class="text-sm text-gray-500 mt-1">規模化安裝的成本較低，通常介於5萬至6萬元之間。</p>
+                        </div>
+                        <div>
+                            <label for="sunlight" class="block font-bold mb-2">日照條件:</label>
+                            <select id="sunlight" class="w-full p-2 border rounded-md bg-gray-50">
+                                <option value="3.68">南部 (如: 台南, 3.68小時/日)</option>
+                                <option value="3.5">中部 (如: 台中, 3.5小時/日)</option>
+                                <option value="3.2">北部 (如: 台北, 3.2小時/日)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="card p-6 bg-gray-50 rounded-lg">
+                        <h4 class="font-bold text-xl mb-4 text-center secondary-accent-text">財務預估總覽</h4>
+                        <div class="space-y-3 text-lg">
+                            <div class="flex justify-between"><span>總建置成本:</span> <span id="totalCost" class="stat-value"></span></div>
+                            <div class="flex justify-between"><span>政府獎勵金:</span> <span id="subsidy" class="stat-value"></span></div>
+                            <div class="flex justify-between border-t pt-3 font-bold"><span>實際投入成本:</span> <span id="netCost" class="stat-value text-xl"></span></div>
+                            <hr class="my-3">
+                            <div class="flex justify-between"><span>預估年發電量:</span> <span id="annualGeneration" class="stat-value"></span></div>
+                            <div class="flex justify-between"><span>預估年售電收益:</span> <span id="annualRevenue" class="stat-value"></span></div>
+                            <div class="flex justify-between border-t pt-3 font-bold"><span>投資回收期:</span> <span id="paybackPeriod" class="stat-value text-xl"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="chart-section" class="mb-16">
+            <h3 class="text-2xl font-bold mb-6 text-center">💰 20年長期收益視覺化</h3>
+            <p class="text-center max-w-3xl mx-auto text-gray-600 mb-6">政府提供20年固定的躉購費率，保障您的長期穩定收入。下圖顯示了在您選擇的條件下，未來20年的累積收益曲線與成本回收點。</p>
+            <div class="card p-4 md:p-6">
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="process" class="mb-16">
+            <h3 class="text-2xl font-bold mb-8 text-center">⏳ 從申請到併網：專案時程解析</h3>
+            <p class="text-center max-w-3xl mx-auto text-gray-600 mb-8">建置太陽能系統涉及繁瑣的行政流程，通常需要6至10個月。了解關鍵步驟有助於您規劃時程。多數屋主會委託專業廠商代辦以簡化流程。</p>
+            <div class="relative">
+                <div class="border-l-4 border-dashed border-gray-300 absolute h-full top-0 left-4 md:left-1/2 md:-translate-x-1/2"></div>
+                <div class="space-y-12">
+                    <div class="flex items-center w-full">
+                        <div class="hidden md:block w-1/2"></div>
+                        <div class="z-10 flex items-center justify-center w-8 h-8 accent-bg text-white rounded-full">1</div>
+                        <div class="card w-full md:w-1/2 ml-4 md:ml-8 p-4">
+                            <h4 class="font-bold">規劃評估與送件</h4>
+                            <p class="text-sm text-gray-600">廠商現場勘查、系統設計，並向地方政府申請建照。</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center w-full">
+                        <div class="hidden md:block w-1/2 md:text-right md:pr-8">
+                            <div class="card inline-block p-4">
+                                <h4 class="font-bold">台電併聯與能源局備案</h4>
+                                <p class="text-sm text-gray-600">向台電申請併聯審查，並向能源局申請同意備案，簽訂購電契約。</p>
+                            </div>
+                        </div>
+                        <div class="z-10 flex items-center justify-center w-8 h-8 accent-bg text-white rounded-full">2</div>
+                        <div class="md:hidden card w-full ml-4 p-4">
+                             <h4 class="font-bold">台電併聯與能源局備案</h4>
+                            <p class="text-sm text-gray-600">向台電申請併聯審查，並向能源局申請同意備案，簽訂購電契約。</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center w-full">
+                        <div class="hidden md:block w-1/2"></div>
+                        <div class="z-10 flex items-center justify-center w-8 h-8 accent-bg text-white rounded-full">3</div>
+                        <div class="card w-full md:w-1/2 ml-4 md:ml-8 p-4">
+                            <h4 class="font-bold">系統施工與執照申請</h4>
+                            <p class="text-sm text-gray-600">文件審核通過後開始施工(約2-8週)，完工後申請使用執照。</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center w-full">
+                        <div class="hidden md:block w-1/2 md:text-right md:pr-8">
+                            <div class="card inline-block p-4">
+                               <h4 class="font-bold">掛錶併聯，開始售電</h4>
+                               <p class="text-sm text-gray-600">台電進行併聯掛錶，系統正式運轉，您的屋頂電廠開始產生收益。</p>
+                            </div>
+                        </div>
+                        <div class="z-10 flex items-center justify-center w-8 h-8 accent-bg text-white rounded-full">4</div>
+                        <div class="md:hidden card w-full ml-4 p-4">
+                            <h4 class="font-bold">掛錶併聯，開始售電</h4>
+                            <p class="text-sm text-gray-600">台電進行併聯掛錶，系統正式運轉，您的屋頂電廠開始產生收益。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="models" class="mb-12">
+            <h3 class="text-2xl font-bold mb-8 text-center">🤔 策略選擇：自建 vs. 屋頂出租</h3>
+            <p class="text-center max-w-3xl mx-auto text-gray-600 mb-8">您有兩種主要方式參與太陽能計畫，這取決於您的資金、風險承受能力與投入意願。以下是兩種模式的關鍵比較，幫助您做出最適合的選擇。</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="card p-6 flex flex-col">
+                    <h4 class="text-xl font-bold mb-4 text-center accent-text">🏡 自行興建模式</h4>
+                    <ul class="space-y-3 text-gray-700 flex-grow">
+                        <li class="flex items-start"><span class="mr-2 text-green-500">✔</span><div><strong>最高收益潛力：</strong>獨享100%的售電收益。</div></li>
+                        <li class="flex items-start"><span class="mr-2 text-green-500">✔</span><div><strong>資產所有權：</strong>太陽能系統成為您的資產。</div></li>
+                        <li class="flex items-start"><span class="mr-2 text-red-500">✖</span><div><strong>高額初始投資：</strong>需自行承擔百萬級的建置成本。</div></li>
+                        <li class="flex items-start"><span class="mr-2 text-red-500">✖</span><div><strong>承擔所有風險：</strong>需自行負責後續維護與營運風險。</div></li>
+                        <li class="flex items-start"><span class="mr-2 text-red-500">✖</span><div><strong>流程親力親為：</strong>需投入時間與心力處理繁瑣的申請流程。</div></li>
+                    </ul>
+                    <div class="mt-6 pt-4 border-t text-center">
+                        <p class="font-bold">適合對象：資金充裕、追求最高報酬且願意投入管理的投資者。</p>
+                    </div>
+                </div>
+                <div class="card p-6 flex flex-col">
+                    <h4 class="text-xl font-bold mb-4 text-center secondary-accent-text">🤝 屋頂出租模式</h4>
+                    <ul class="space-y-3 text-gray-700 flex-grow">
+                        <li class="flex items-start"><span class="mr-2 text-green-500">✔</span><div><strong>零成本投入：</strong>無需支付任何建置費用。</div></li>
+                        <li class="flex items-start"><span class="mr-2 text-green-500">✔</span><div><strong>零風險零心力：</strong>所有申請、建置、維護皆由業者負責。</div></li>
+                        <li class="flex items-start"><span class="mr-2 text-green-500">✔</span><div><strong>穩定被動收入：</strong>定期收取固定的屋頂租金或分潤。</div></li>
+                        <li class="flex items-start"><span class="mr-2 text-red-500">✖</span><div><strong>收益較低：</strong>僅能獲得部分收益（租金），而非全部售電收入。</div></li>
+                        <li class="flex items-start"><span class="mr-2 text-red-500">✖</span><div><strong>無資產所有權：</strong>系統為業者所有。</div></li>
+                    </ul>
+                    <div class="mt-6 pt-4 border-t text-center">
+                        <p class="font-bold">適合對象：希望零風險、零投入，輕鬆獲取穩定被動收入的屋主。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="conclusion" class="text-center mt-16">
+            <h3 class="text-2xl font-bold mb-4">結論與行動建議</h3>
+            <p class="max-w-3xl mx-auto text-lg text-gray-600 mb-6">
+                在100坪屋頂建置太陽能系統是一項兼具財務與環保價值的明智投資。它不僅能帶來超過20年的穩定被動收入，更能響應全球綠色能源趨勢。
+            </p>
+            <button class="bg-green-600 text-white font-bold py-3 px-8 rounded-full hover:bg-green-700 transition duration-300 text-lg">
+                第一步：尋求專業廠商現場評估
+            </button>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-16 py-6">
+        <div class="container mx-auto px-4 text-center text-sm">
+            <p>&copy; 2025 太陽能效益分析工具. 本數據僅供模擬參考，實際狀況請以專業廠商評估為準。</p>
+        </div>
+    </footer>
+
+    <script>
+        const capacitySlider = document.getElementById('capacity');
+        const capacityValue = document.getElementById('capacityValue');
+        const costSlider = document.getElementById('cost');
+        const costValue = document.getElementById('costValue');
+        const sunlightSelect = document.getElementById('sunlight');
+
+        const totalCostEl = document.getElementById('totalCost');
+        const subsidyEl = document.getElementById('subsidy');
+        const netCostEl = document.getElementById('netCost');
+        const annualGenerationEl = document.getElementById('annualGeneration');
+        const annualRevenueEl = document.getElementById('annualRevenue');
+        const paybackPeriodEl = document.getElementById('paybackPeriod');
+
+        const FIT_RATE = 4.2320; 
+        const SUBSIDY_PER_KW = 3000;
+
+        let revenueChart;
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat('zh-TW').format(Math.round(num));
+        }
+
+        function calculate() {
+            const capacity = parseFloat(capacitySlider.value);
+            const costPerKw = parseInt(costSlider.value, 10);
+            const dailySunlight = parseFloat(sunlightSelect.value);
+
+            capacityValue.textContent = capacity.toFixed(1);
+            costValue.textContent = formatNumber(costPerKw);
+
+            const totalCost = capacity * costPerKw;
+            const subsidy = Math.min(capacity * SUBSIDY_PER_KW, 300000);
+            const netCost = totalCost - subsidy;
+
+            const annualGeneration = capacity * dailySunlight * 365;
+            const annualRevenue = annualGeneration * FIT_RATE;
+            
+            const paybackPeriod = netCost > 0 && annualRevenue > 0 ? (netCost / annualRevenue).toFixed(1) : 'N/A';
+
+            totalCostEl.textContent = `NT$ ${formatNumber(totalCost)}`;
+            subsidyEl.textContent = `NT$ ${formatNumber(subsidy)}`;
+            netCostEl.textContent = `NT$ ${formatNumber(netCost)}`;
+            annualGenerationEl.textContent = `${formatNumber(annualGeneration)} 度`;
+            annualRevenueEl.textContent = `NT$ ${formatNumber(annualRevenue)}`;
+            paybackPeriodEl.textContent = `${paybackPeriod} 年`;
+
+            updateChart(netCost, annualRevenue);
+        }
+
+        function updateChart(netCost, annualRevenue) {
+            const years = Array.from({ length: 21 }, (_, i) => `第 ${i} 年`);
+            const cumulativeRevenue = Array.from({ length: 21 }, (_, i) => annualRevenue * i);
+
+            revenueChart.data.labels = years;
+            revenueChart.data.datasets[0].data = cumulativeRevenue;
+            revenueChart.data.datasets[1].data = Array(21).fill(netCost);
+            revenueChart.update();
+        }
+
+        function initializeChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '累積售電收益',
+                        data: [],
+                        borderColor: '#7C9D96',
+                        backgroundColor: 'rgba(124, 157, 150, 0.1)',
+                        fill: true,
+                        tension: 0.1
+                    }, {
+                        label: '實際投入成本 (回收點)',
+                        data: [],
+                        borderColor: '#A1887F',
+                        borderDash: [5, 5],
+                        fill: false,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return 'NT$ ' + (value / 10000).toLocaleString() + '萬';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'TWD', minimumFractionDigits: 0 }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        capacitySlider.addEventListener('input', calculate);
+        costSlider.addEventListener('input', calculate);
+        sunlightSelect.addEventListener('change', calculate);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeChart();
+            calculate();
+        });
+    </script>
+</body>
+</html>
