@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>投資效益儀表板</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Noto Sans TC', sans-serif; background:#FDFBF6; color:#424242; }
+    .card { background:#fff; border-radius:1rem; box-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1),0 2px 4px -2px rgb(0 0 0 / 0.1); }
+    .stat-value { color:#7C9D96; font-weight:700; }
+    .accent-text { color:#7C9D96; }
+    .secondary-accent-text { color:#A1887F; }
+    .chart-container { position:relative; width:100%; height:400px; }
+  </style>
+</head>
+<body class="antialiased">
+
+  <!-- 導覽列 -->
+  <header class="bg-white/90 backdrop-blur sticky top-0 z-50 shadow">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="./" class="text-lg md:text-xl font-bold text-emerald-700">太陽能互動專題</a>
+      <nav class="hidden md:flex gap-6 text-sm">
+        <a class="hover:text-emerald-700" href="roi-dashboard.html">投資效益儀表板</a>
+        <a class="hover:text-emerald-700" href="roof-100.html">100 坪互動分析</a>
+        <a class="hover:text-emerald-700" href="pro-guide.html">合規 / 安全 / 流程</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-10 md:py-14">
+    <section class="text-center mb-12">
+      <h1 class="text-3xl md:text-4xl font-bold accent-text">投資效益即時儀表板</h1>
+      <p class="max-w-3xl mx-auto text-gray-600 mt-3">
+        調整條件，立即查看 20 年財務走勢與回收期。
+      </p>
+    </section>
+
+    <!-- 模擬器區塊 -->
+    <section class="card p-6 md:p-8 mb-12">
+      <h2 class="text-2xl font-bold mb-6 text-center">參數設定</h2>
+      <div class="grid md:grid-cols-2 gap-8">
+        <div>
+          <label class="block font-bold mb-2">裝置容量 (kW): <span id="capacityValue" class="accent-text">60</span></label>
+          <input type="range" id="capacity" min="40" max="66.7" step="0.1" value="60" class="w-full mb-6">
+
+          <label class="block font-bold mb-2">每瓩建置成本 (NT$): <span id="costValue" class="accent-text">55,000</span></label>
+          <input type="range" id="cost" min="50000" max="60000" step="100" value="55000" class="w-full mb-6">
+
+          <label class="block font-bold mb-2">日照條件</label>
+          <select id="sunlight" class="w-full p-2 border rounded-md bg-gray-50">
+            <option value="3.68">南部 (3.68h/日)</option>
+            <option value="3.5">中部 (3.5h/日)</option>
+            <option value="3.2">北部 (3.2h/日)</option>
+          </select>
+        </div>
+
+        <div class="card p-4 bg-gray-50">
+          <h3 class="text-xl font-bold text-center secondary-accent-text mb-4">財務預估</h3>
+          <div class="space-y-2">
+            <div class="flex justify-between"><span>總建置成本:</span><span id="totalCost" class="stat-value"></span></div>
+            <div class="flex justify-between"><span>政府獎勵金:</span><span id="subsidy" class="stat-value"></span></div>
+            <div class="flex justify-between font-bold border-t pt-2"><span>實際投入:</span><span id="netCost" class="stat-value"></span></div>
+            <hr>
+            <div class="flex justify-between"><span>年發電量:</span><span id="annualGeneration" class="stat-value"></span></div>
+            <div class="flex justify-between"><span>年收益:</span><span id="annualRevenue" class="stat-value"></span></div>
+            <div class="flex justify-between font-bold border-t pt-2"><span>回收期:</span><span id="paybackPeriod" class="stat-value"></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 圖表 -->
+    <section class="card p-6">
+      <h2 class="text-2xl font-bold text-center mb-6">20 年累積收益</h2>
+      <div class="chart-container">
+        <canvas id="revenueChart"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-gray-800 text-white text-center text-sm py-6 mt-12">
+    © 2025 投資效益儀表板. 數據僅供模擬參考。
+  </footer>
+
+  <script>
+    const capacitySlider = document.getElementById('capacity');
+    const capacityValue = document.getElementById('capacityValue');
+    const costSlider = document.getElementById('cost');
+    const costValue = document.getElementById('costValue');
+    const sunlightSelect = document.getElementById('sunlight');
+    const totalCostEl = document.getElementById('totalCost');
+    const subsidyEl = document.getElementById('subsidy');
+    const netCostEl = document.getElementById('netCost');
+    const annualGenerationEl = document.getElementById('annualGeneration');
+    const annualRevenueEl = document.getElementById('annualRevenue');
+    const paybackPeriodEl = document.getElementById('paybackPeriod');
+
+    const FIT_RATE = 4.2320;
+    const SUBSIDY_PER_KW = 3000;
+    let revenueChart;
+
+    function formatNumber(num){return new Intl.NumberFormat('zh-TW').format(Math.round(num));}
+
+    function calculate(){
+      const capacity = parseFloat(capacitySlider.value);
+      const costPerKw = parseInt(costSlider.value,10);
+      const dailySunlight = parseFloat(sunlightSelect.value);
+      capacityValue.textContent = capacity.toFixed(1);
+      costValue.textContent = formatNumber(costPerKw);
+      const totalCost = capacity * costPerKw;
+      const subsidy = Math.min(capacity * SUBSIDY_PER_KW, 300000);
+      const netCost = totalCost - subsidy;
+      const annualGeneration = capacity * dailySunlight * 365;
+      const annualRevenue = annualGeneration * FIT_RATE;
+      const paybackPeriod = (netCost/annualRevenue).toFixed(1);
+      totalCostEl.textContent = `NT$ ${formatNumber(totalCost)}`;
+      subsidyEl.textContent = `NT$ ${formatNumber(subsidy)}`;
+      netCostEl.textContent = `NT$ ${formatNumber(netCost)}`;
+      annualGenerationEl.textContent = `${formatNumber(annualGeneration)} 度`;
+      annualRevenueEl.textContent = `NT$ ${formatNumber(annualRevenue)}`;
+      paybackPeriodEl.textContent = `${paybackPeriod} 年`;
+      updateChart(netCost, annualRevenue);
+    }
+
+    function updateChart(netCost, annualRevenue){
+      const years = Array.from({length:21},(_,i)=>`第${i}年`);
+      const cumulativeRevenue = years.map((_,i)=>annualRevenue*i);
+      revenueChart.data.labels = years;
+      revenueChart.data.datasets[0].data = cumulativeRevenue;
+      revenueChart.data.datasets[1].data = Array(21).fill(netCost);
+      revenueChart.update();
+    }
+
+    function initializeChart(){
+      const ctx=document.getElementById('revenueChart').getContext('2d');
+      revenueChart=new Chart(ctx,{
+        type:'line',
+        data:{
+          labels:[],
+          datasets:[{
+            label:'累積售電收益',
+            data:[],
+            borderColor:'#7C9D96',
+            backgroundColor:'rgba(124,157,150,0.1)',
+            fill:true,
+            tension:0.1
+          },{
+            label:'實際投入成本',
+            data:[],
+            borderColor:'#A1887F',
+            borderDash:[5,5],
+            fill:false,
+            pointRadius:0
+          }]
+        },
+        options:{responsive:true,maintainAspectRatio:false}
+      });
+    }
+
+    capacitySlider.addEventListener('input',calculate);
+    costSlider.addEventListener('input',calculate);
+    sunlightSelect.addEventListener('change',calculate);
+    document.addEventListener('DOMContentLoaded',()=>{initializeChart();calculate();});
+  </script>
+</body>
+</html>

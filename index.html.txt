@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>太陽能專題｜互動式網站首頁</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:'Noto Sans TC',sans-serif;background:#FAFAF8;color:#222}
+    .card{background:#fff;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.06);transition:.25s}
+    .card:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(0,0,0,.08)}
+    .chip{font-size:.75rem;background:#eef2f7;color:#556; padding:.25rem .5rem;border-radius:999px}
+  </style>
+</head>
+<body class="antialiased">
+  <!-- 全站導覽 -->
+  <header class="bg-white/90 backdrop-blur sticky top-0 z-50 shadow">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="./" class="text-xl md:text-2xl font-bold text-emerald-700">太陽能互動專題</a>
+      <nav class="hidden md:flex gap-6 text-sm">
+        <a class="hover:text-emerald-700" href="roi-dashboard.html">投資效益儀表板</a>
+        <a class="hover:text-emerald-700" href="roof-100.html">100 坪互動分析</a>
+        <a class="hover:text-emerald-700" href="pro-guide.html">合規 / 安全 / 流程</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-10 md:py-14">
+    <section class="text-center mb-10">
+      <h1 class="text-3xl md:text-5xl font-extrabold text-emerald-800">整合入口首頁</h1>
+      <p class="text-gray-600 mt-3 max-w-3xl mx-auto">
+        這是你的網站首頁，以下三個卡片連結到各自的互動頁面。
+      </p>
+    </section>
+
+    <section class="grid md:grid-cols-3 gap-6">
+      <!-- 投報儀表板 -->
+      <a href="roi-dashboard.html" class="card block p-6">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xl font-bold">投資效益儀表板</h3>
+          <span class="chip">互動圖表</span>
+        </div>
+        <p class="text-gray-600">
+          即時試算、20 年淨利潤走勢與 FIT 級距表。
+        </p>
+      </a>
+
+      <!-- 100 坪互動分析 -->
+      <a href="roof-100.html" class="card block p-6">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xl font-bold">100 坪屋頂互動分析</h3>
+          <span class="chip">情境模擬</span>
+        </div>
+        <p class="text-gray-600">
+          以滑桿調整容量/成本/日照，立刻看到回收期與收益。
+        </p>
+      </a>
+
+      <!-- 合規/安全/流程指南 -->
+      <a href="pro-guide.html" class="card block p-6">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xl font-bold">合規 / 安全 / 流程指南</h3>
+          <span class="chip">知識導覽</span>
+        </div>
+        <p class="text-gray-600">
+          申請、併網、維運與保險，一頁看懂專業重點。
+        </p>
+      </a>
+    </section>
+  </main>
+
+  <footer class="text-center text-gray-500 text-sm py-8">
+    © 2025 Solar Interactive. 本站為示範用途。
+  </footer>
+</body>
+</html>

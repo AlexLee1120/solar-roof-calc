@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>合規 / 安全 / 流程指南</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family:'Noto Sans TC',sans-serif; background:#FAFAF8; color:#333; }
+    .card { background:#fff; border-radius:1rem; box-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1),0 2px 4px -2px rgb(0 0 0 / 0.1); padding:1.5rem; }
+    .section-title { color:#7C9D96; font-weight:700; margin-bottom:1rem; }
+  </style>
+</head>
+<body class="antialiased">
+
+  <!-- 導覽列 -->
+  <header class="bg-white/90 backdrop-blur sticky top-0 z-50 shadow">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="./" class="text-lg md:text-xl font-bold text-emerald-700">太陽能互動專題</a>
+      <nav class="hidden md:flex gap-6 text-sm">
+        <a class="hover:text-emerald-700" href="roi-dashboard.html">投資效益儀表板</a>
+        <a class="hover:text-emerald-700" href="roof-100.html">100 坪互動分析</a>
+        <a class="hover:text-emerald-700" href="pro-guide.html">合規 / 安全 / 流程</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-10 md:py-14 space-y-12">
+    <section class="text-center">
+      <h1 class="text-3xl md:text-4xl font-bold section-title">合規 / 安全 / 流程指南</h1>
+      <p class="max-w-3xl mx-auto text-gray-600">
+        太陽能電廠從計畫到併網，需要經歷多道流程，並考量結構安全與維運。以下整理完整路徑。
+      </p>
+    </section>
+
+    <section class="card">
+      <h2 class="text-2xl section-title">⏳ 專案流程</h2>
+      <ol class="list-decimal list-inside space-y-2 text-gray-700">
+        <li>規劃評估與送件：廠商勘查、系統設計，向地方政府申請建照。</li>
+        <li>台電併聯與能源局備案：申請併聯、簽購電契約。</li>
+        <li>系統施工與執照申請：文件審查後施工，完工後申請使用執照。</li>
+        <li>掛錶併聯：台電掛錶，系統正式運轉。</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2 class="text-2xl section-title">🏗️ 結構與設備安全</h2>
+      <ul class="list-disc list-inside space-y-2 text-gray-700">
+        <li>屋頂承重評估：確保屋頂結構可承載太陽能板與機電設備。</li>
+        <li>防水設計：避免施工破壞屋頂防水層。</li>
+        <li>選用合格逆變器與模組：符合 CNS 與 IEC 國際標準。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2 class="text-2xl section-title">⚙️ 維運與保險</h2>
+      <ul class="list-disc list-inside space-y-2 text-gray-700">
+        <li>定期檢測與清洗，維持發電效能。</li>
+        <li>安裝監控系統，隨時追蹤發電狀況。</li>
+        <li>投保產險與責任險，降低營運風險。</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="bg-gray-800 text-white text-center text-sm py-6 mt-12">
+    © 2025 合規 / 安全 / 流程指南. 本內容僅供參考。
+  </footer>
+</body>
+</html>
